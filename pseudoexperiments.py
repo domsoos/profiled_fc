@@ -60,23 +60,38 @@ def generate_pseudoexperiment(m, Delta):
     generated_counts = [np_rng.poisson(bin_mean) for bin_mean in current_means]
     return generated_counts
 
-
 def negative_log_likelihood(a, b, c, d, mass, delta):
-    """Return the value of lambda for given set of model parameters, and for
-    the fixed data in OBS.
-    """
-    # This function is not yet written
+    """Calculate the negative log likelihood for a given set of parameters."""
+    nll = 0  # Initialize negative log likelihood
+    for k in range(1, N_b + 1): # Iterate through each bin in the energy spectrum
+        mu = poisson_mean_model(a, b, c, d, mass, delta, k)  # Calculate the expected mean
+        observed = OBS[k - 1]  # Get the observed count
+        # Add the Poisson probability (log-form for numerical stability)
+        nll += -mu + observed * math.log(mu) - math.log(math.factorial(observed))
+    return -nll
 
 
 def fit_pseudoexperiment(data):
-    """Given pseudoexperiment data (a list of counts in energy bins), find the
-    minimum of the negative log likelihood and return it.
-    """
-<<<<<<< Local Changes
-    
-=======
-    # This function is not yet written
->>>>>>> External Changes
+    """Find the minimum of the negative log likelihood given pseudoexperiment data."""
+    # Initialize parameters
+    best_a, best_b, best_c, best_d, best_mass, best_delta = 0, 0, 0, 0, 0, 0
+    best_nll = float('inf')  # Start with a very high NLL
+    it = 0
+    # Grid search over parameters
+    for a in [A - dA, A, A + dA]:
+        for b in [B - dB, B, B + dB]:
+            for c in [C - dC, C, C + dC]:
+                for d in [D - dD, D, D + dD]:
+                    for mass in range(5, 20):  # Assume mass is an integer for simplicity
+                        for delta in [1 - 0.1, 1, 1 + 0.1]:  # Assume delta can vary by 0.1
+                            nll = negative_log_likelihood(a, b, c, d, mass, delta)
+                            # If this NLL is better (lower), update the best parameters
+                            if nll < best_nll:
+                                best_a, best_b, best_c, best_d, best_mass, best_delta = a, b, c, d, mass, delta
+                                best_nll = nll
+    # Return the best parameters
+    print(f"total it: {it}")
+    return best_a, best_b, best_c, best_d, best_mass, best_delta
 
 
 def generate_one_lambda(m, Delta):
