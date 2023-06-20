@@ -214,11 +214,11 @@ if __name__ == "__main__":
     #deltas = [2.0]#,3.0,4.0]
 
     num_of_pseudo = 5
-    # 3 x 3 x 10 optimizations
 
     # Define mass and delta ranges
-    mass_values = numpy.linspace(5.0, 10.0, num=5)  # Decrease num for faster computation
+    mass_values = numpy.linspace(5.0, 10.0, num=5)
     delta_values = numpy.linspace(1.0, 4.0, num=5)
+    # 5 x 5 x 5 experiments
 
     likelihood_ratios = {}
 

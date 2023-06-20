@@ -46,8 +46,6 @@ class LogLike:
         delta = self.delta if delta is None else delta
         return self.negative_log_likelihood(a, b, c, d, mass, delta)
 
-    # ...
-
     def negative_log_likelihood(self, a, b, c, d, mass, delta):
         bin_poisson_means = [
             poisson_mean_model(a, b, c, d, mass, delta, k)
@@ -94,7 +92,11 @@ def poisson_mean_model(a, b, c, d, mass, delta, k):
     """Generate the Poisson mean for bin k, for the given set of parameter
     values.
     """
-    background = a * math.exp(-k / b) + d
+    try:
+        background = a * math.exp(-k / b) + d
+    except OverflowError:
+        #print(f"OverflowError with a={a}, b={b}, c={c}, d={d}, mass={mass}, delta={delta}, k={k}")
+        background = float('inf')  # or some large number
     signal = (c / delta) * math.exp(-0.5 * ((k - mass) / delta) ** 2)
     return background + signal
 
@@ -181,30 +183,31 @@ if __name__ == "__main__":
     # Pick a spot in our parameter space. At this location, we are going to
     # go through the profiled FC procedure. The result will be a p-value
     # (probabililty) at this location in the parameter space.
-    m_p, Delta_p = 8.0, 2.0
+    #m_p, Delta_p = 8.0, 2.0
 
-    masses = [8.0,7.0,6.0]
-    deltas = [2.0,3.0,4.0]
+    #masses = [8.0,7.0,6.0]
+    #deltas = [2.0,3.0,4.0]
+
+    mass_values = numpy.linspace(5.0, 10.0, num=5)
+    delta_values = numpy.linspace(1.0, 4.0, num=5)
 
     num_of_pseudo = 10
-    # 3 x 3 x 10 optimizations
+    # 5 x 5 x 10 = 250 experiments
 
     likelihood_ratios = []
-    for mass in masses:
-        for delta in deltas:
+    for mass in mass_values:
+        for delta in delta_values:
             # Now we fix the values of m and Delta, and re-fit the *other* parameters.
             for _ in range(num_of_pseudo):
-                # Generate pseudoexperiment
                 pe = generate_pseudoexperiment(mass,delta)
-                print(f"Generated pseudoexperiment: \n {pe}\n")
+                #print(f"Generated pseudoexperiment: \n {pe}\n")
                 
-                # Fit the data allowing all parameters to vary
-                full_fit = fit_given_data(pe) #                 
-                p_fit = fit_given_data_at_location(mass, delta, pe) # fixed location
+                full_fit = fit_given_data(pe) # Fit the data allowing all parameters to vary         
+                p_fit = fit_given_data_at_location(mass, delta, pe) # Fit data at fixed location
 
-                likelihood_ratio = 2 * (full_fit['fun'] - p_fit['fun'])
+                likelihood_ratio = 2 * (full_fit['fun'] - p_fit['fun']) # According to Wilks' Theorem
                 likelihood_ratios.append(likelihood_ratio)
-                print(f"Fit for mass: {mass} and delta: {delta}: \n {p_fit}\nlikelihood ratio: {likelihood_ratio}\n")
+                #print(f"Fit for mass: {mass} and delta: {delta}: \n {p_fit}\nlikelihood ratio: {likelihood_ratio}\n")
 
     # Compute the critical value for 90% confidence level
     critical_values = numpy.percentile(likelihood_ratios, 90)
