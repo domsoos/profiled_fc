@@ -11,6 +11,10 @@
 
 [scipy.optimize.minimize](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html)
 
+[ROOT::Minuit2 Documentation](https://root.cern.ch/root/htmldoc/guides/minuit2/Minuit2.html)
+
+[Minuit2Minimizer::MnMigrad & VariableMetricBuilder Documentation](https://root.cern.ch/root/htmldoc/guides/minuit2/Minuit2.html#mnmigrad-and-variablemetricminimizer)
+
 # Research Papers
 
 Unified approach to the classical statistical analysis of small signals [link to original paper](https://arxiv.org/pdf/physics/9711021v2.pdf)
